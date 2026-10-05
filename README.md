@@ -9,7 +9,7 @@ Built in **Unity 6** with **C#**. All art is my own.
 ## Features
 
 - **Procedural level generation** — platforms spawn ahead of the player and are recycled behind, with difficulty that ramps up with height
-- **Multiple platform types** — static, moving, and breakable platforms, plus bounce and hazard types ready to drop in
+- **Multiple platform types** — static, moving, and breakable platforms
 - **Tilt controls** with adjustable sensitivity, and keyboard controls in the editor
 - **Auto-scrolling camera** that kicks in partway up to keep the pressure on
 - **Collectible gems** with a lifetime gem total and a persistent high score
