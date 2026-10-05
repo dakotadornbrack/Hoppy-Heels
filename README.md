@@ -4,7 +4,8 @@ A vertical endless platformer for Android, in the spirit of Doodle Jump. Bounce 
 
 Built in **Unity 6** with **C#**. All art is my own.
 
-Watch the game play
+## Gameplay
+
 https://github.com/user-attachments/assets/1211ab07-34b0-4e6a-aa61-2caba8c9b7d3
 
 ## Features
