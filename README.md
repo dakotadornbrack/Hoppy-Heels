@@ -6,7 +6,7 @@ Built in **Unity 6** with **C#**. All art is my own.
 
 ## Gameplay
 
-https://github.com/user-attachments/assets/1211ab07-34b0-4e6a-aa61-2caba8c9b7d3
+https://github.com/user-attachments/assets/73ca78ad-6d09-4601-b6e0-f6484002a12f
 
 ## Features
 
