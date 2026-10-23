@@ -43,6 +43,12 @@ public static class SceneBuilder
         var ui = CreateUI(gameManagerGO);
 
         WireGameManagerEvents(gameManagerGO, ui);
+
+        // Android back button
+        var back = gameManagerGO.GetComponent<BackButtonHandler>();
+        SetRef(back, "settingsPanel", ui.settingsGO.GetComponent<SettingsPanel>());
+
+        NeonUIStyle.Apply(ui.settingsGO.transform.parent.gameObject);
         CreateEventSystem();
 
         // Mark the scene dirty so Unity prompts a save
@@ -107,6 +113,7 @@ public static class SceneBuilder
         go.AddComponent<GameManager>();
         go.AddComponent<ScoreManager>();
         go.AddComponent<SettingsManager>();
+        go.AddComponent<BackButtonHandler>();
         return go;
     }
 
@@ -520,6 +527,11 @@ public static class SceneBuilder
         UnityEventTools.AddPersistentListener(tryAgainBtn.onClick,
             new UnityAction(gm.RestartGame));
 
+        var goMenuBtn = CreateButton(gameOverGO, "MainMenuButton", "Main Menu",
+            pos: new Vector2(0f, -260f), size: new Vector2(320f, 90f));
+        UnityEventTools.AddPersistentListener(goMenuBtn.onClick,
+            new UnityAction(gm.QuitToMenu));
+
         gameOverGO.AddComponent<GameOverPanel>();
         gameOverGO.SetActive(false);
 
@@ -527,8 +539,8 @@ public static class SceneBuilder
         var mainMenuGO = ChildGO(canvasGO, "MainMenuPanel");
         Stretch(mainMenuGO);
 
-        var menuBg = mainMenuGO.AddComponent<Image>();
-        menuBg.color = new Color(0.18f, 0.12f, 0.08f, 1f);
+        // Same gradient sprite as the in-game Background prefab
+        ApplyMenuBackground(mainMenuGO.AddComponent<Image>());
 
         TMPLabel(mainMenuGO, "TitleText", "HOPPY HEELS", 90,
             anchor: new Vector2(0.5f, 0.5f),
@@ -599,8 +611,8 @@ public static class SceneBuilder
         var settingsGO = ChildGO(canvasGO, "SettingsPanel");
         Stretch(settingsGO);
 
-        var settingsBg = settingsGO.AddComponent<Image>();
-        settingsBg.color = new Color(0.05f, 0.03f, 0.1f, 0.95f);
+        // Opaque so the menu underneath doesn't show through
+        ApplyMenuBackground(settingsGO.AddComponent<Image>());
 
         TMPLabel(settingsGO, "TitleText", "Settings", 70,
             anchor: new Vector2(0.5f, 0.5f),
@@ -643,19 +655,19 @@ public static class SceneBuilder
         soundToggle.graphic = checkImg;
         soundToggle.isOn = true;
 
-        // Sensitivity slider row
-        TMPLabel(settingsGO, "SensLabel", "Tilt", 40,
+        // Sensitivity slider row (heading above, value to the right)
+        TMPLabel(settingsGO, "SensLabel", "Tilt Sensitivity", 40,
             anchor: new Vector2(0.5f, 0.5f),
-            pos:    new Vector2(-100f, 20f),
-            size:   new Vector2(250f, 60f))
-            .alignment = TextAlignmentOptions.MidlineRight;
+            pos:    new Vector2(0f, 40f),
+            size:   new Vector2(600f, 60f))
+            .alignment = TextAlignmentOptions.Center;
 
         var sliderGO = ChildGO(settingsGO, "SensitivitySlider");
         var slRT = sliderGO.GetComponent<RectTransform>();
         slRT.anchorMin = slRT.anchorMax = new Vector2(0.5f, 0.5f);
         slRT.pivot = new Vector2(0.5f, 0.5f);
-        slRT.anchoredPosition = new Vector2(80f, 20f);
-        slRT.sizeDelta = new Vector2(300f, 40f);
+        slRT.anchoredPosition = new Vector2(-30f, -30f);
+        slRT.sizeDelta = new Vector2(400f, 40f);
 
         // Slider background
         var sliderBgGO = ChildGO(sliderGO, "Background");
@@ -706,7 +718,7 @@ public static class SceneBuilder
         // Sensitivity value label
         var sensValueText = TMPLabel(settingsGO, "SensValueText", "22", 36,
             anchor: new Vector2(0.5f, 0.5f),
-            pos:    new Vector2(270f, 20f),
+            pos:    new Vector2(240f, -30f),
             size:   new Vector2(80f, 50f));
         sensValueText.alignment = TextAlignmentOptions.Center;
 
@@ -747,6 +759,21 @@ public static class SceneBuilder
             pauseButtonGO = pauseButtonGO,
             settingsGO    = settingsGO
         };
+    }
+
+    /// <summary>Full-screen panel background using the in-game gradient sprite.</summary>
+    static void ApplyMenuBackground(Image img)
+    {
+        var bgPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Background.prefab");
+        if (bgPrefab != null && bgPrefab.TryGetComponent(out SpriteRenderer sr) && sr.sprite != null)
+        {
+            img.sprite = sr.sprite;
+            img.color  = Color.white;
+        }
+        else
+        {
+            img.color = new Color(0.08f, 0.02f, 0.14f, 1f);
+        }
     }
 
     // -----------------------------------------------------------------------

@@ -6,6 +6,20 @@ using UnityEngine;
 /// </summary>
 public class GemSparkle : MonoBehaviour
 {
+    // One material for every sparkle. Creating one per pickup leaked a Material
+    // (never destroyed) each time a gem was collected.
+    static Material sharedMaterial;
+
+    public static Material SharedMaterial
+    {
+        get
+        {
+            if (sharedMaterial == null)
+                sharedMaterial = new Material(Shader.Find("Sprites/Default")) { name = "GemSparkle (shared)" };
+            return sharedMaterial;
+        }
+    }
+
     void Start()
     {
         var ps = gameObject.AddComponent<ParticleSystem>();
@@ -47,7 +61,7 @@ public class GemSparkle : MonoBehaviour
 
         // Sprites/Default works in URP for simple particles
         var renderer = GetComponent<ParticleSystemRenderer>();
-        renderer.material = new Material(Shader.Find("Sprites/Default"));
+        renderer.sharedMaterial = SharedMaterial;
 
         ps.Play();
         Destroy(gameObject, 1f);

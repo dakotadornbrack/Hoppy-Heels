@@ -2,7 +2,7 @@
 
 A vertical endless platformer for Android, in the spirit of Doodle Jump. Bounce from platform to platform, tilt your phone to steer, collect gems, and see how high you can climb before the screen catches up with you.
 
-Built in **Unity 6** with **C#**. All art is my own.
+Built in **Unity 6** with **C#**. All art is my own. Title font: [Monoton](https://fonts.google.com/specimen/Monoton) by Vernon Adams (SIL Open Font License).
 
 ## Gameplay
 

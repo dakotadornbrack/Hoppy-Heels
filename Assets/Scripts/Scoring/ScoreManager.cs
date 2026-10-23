@@ -38,6 +38,10 @@ public class ScoreManager : MonoBehaviour
     float startY;
     bool tracking;
 
+    // Kept separate so gem bonuses aren't absorbed as the height score catches up
+    int heightScore;
+    int bonusScore;
+
     public int CurrentScore { get; private set; }
     public int HighScore { get; private set; }
     public int GemsCollected { get; private set; }
@@ -49,14 +53,15 @@ public class ScoreManager : MonoBehaviour
         Instance = this;
         HighScore = PlayerPrefs.GetInt(HighScoreKey, 0);
         TotalGems = PlayerPrefs.GetInt(TotalGemsKey, 0);
+
+        // Looked up in Awake so StartTracking() works even if GameManager
+        // auto-starts a run (after Try Again) before this Start() runs.
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        startY = player != null ? player.position.y : 0f;
     }
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        startY = player != null ? player.position.y : 0f;
-        tracking = false;
-
         if (highScoreText) highScoreText.text = $"Best: {HighScore}";
         if (menuHighScoreText) menuHighScoreText.text = $"Best: {HighScore}";
         if (menuTotalGemsText) menuTotalGemsText.text = $"Total Gems: {TotalGems}";
@@ -67,6 +72,8 @@ public class ScoreManager : MonoBehaviour
     {
         startY = player != null ? player.position.y : 0f;
         CurrentScore = 0;
+        heightScore = 0;
+        bonusScore = 0;
         GemsCollected = 0;
         tracking = true;
         if (scoreText) scoreText.text = "0";
@@ -78,9 +85,8 @@ public class ScoreManager : MonoBehaviour
         if (!tracking || player == null) return;
 
         float height = Mathf.Max(0f, player.position.y - startY);
-        int score = Mathf.FloorToInt(height * pointsPerUnit);
-        if (score > CurrentScore)
-            CurrentScore = score;
+        heightScore = Mathf.Max(heightScore, Mathf.FloorToInt(height * pointsPerUnit));
+        CurrentScore = heightScore + bonusScore;
 
         if (scoreText) scoreText.text = CurrentScore.ToString();
     }
@@ -102,7 +108,8 @@ public class ScoreManager : MonoBehaviour
     public void CollectGem(int value)
     {
         GemsCollected++;
-        CurrentScore += value;
+        bonusScore += value;
+        CurrentScore = heightScore + bonusScore;
         if (scoreText) scoreText.text = CurrentScore.ToString();
         if (hudGemsText) hudGemsText.text = $"Gems: {GemsCollected}";
     }

@@ -32,6 +32,8 @@ The builder:
 - Loads prefabs from `Assets/Prefabs/` (Player, StaticPlatform, MovingPlatform, BreakablePlatform, Gem, Background, NeonSigns). If a prefab is missing, it creates a placeholder-art version. **Existing prefabs are never overwritten**, so custom art and collider tweaks survive rebuilds.
 - Creates every scene object below and wires all serialized references and button/UnityEvent listeners.
 
+> To update an **existing** scene with newer changes (back-button handler, neon menu style) without rebuilding it, use **Hoppy Heels > Update Existing Scene**. It's safe to run repeatedly.
+
 > The builder **does not clear the scene** first; it only reuses an existing Main Camera. Running it on an already-built scene creates duplicate managers, spawners, and UI. Delete the old objects (or use a fresh scene) before rebuilding.
 
 ---
@@ -53,10 +55,10 @@ Scene
 ├── NeonSigns            NeonSigns prefab (ParallaxLayer, factor ~0.4, sorting −10)
 ├── UI Canvas            Screen Space Overlay, scale with screen size 1080×1920, match 0.5
 │   ├── HUD              SafeArea — ScoreText, BestText, HudGemsText, PauseButton
-│   ├── GameOverPanel    Score / Best / Gems / Total Gems texts, "Try Again" (starts hidden)
-│   ├── MainMenuPanel    Best, Total Gems, "Play", "Settings" (starts visible)
+│   ├── GameOverPanel    Score / Best / Gems / Total Gems texts, "Try Again", "Main Menu" (starts hidden)
+│   ├── MainMenuPanel    Best, Total Gems, "Play", "Settings"; background = in-game gradient sprite (starts visible)
 │   ├── PausePanel       "Resume", "Restart", "Settings", "Menu" (starts hidden)
-│   └── SettingsPanel    Sound toggle, sensitivity slider + value, "Back" (starts hidden)
+│   └── SettingsPanel    Gradient background; Sound toggle, "Tilt Sensitivity" heading + slider + value, "Back" (starts hidden)
 └── EventSystem
 ```
 
@@ -97,7 +99,7 @@ Tag **Gem**, **CircleCollider2D** (Is Trigger), **Collectible** script. Art goes
 | Pause button (HUD) | `GameManager.PauseGame` |
 | Resume | `GameManager.ResumeGame` |
 | Restart (pause) / Try Again (game over) | `GameManager.RestartGame` |
-| Menu (pause) | `GameManager.QuitToMenu` |
+| Menu (pause) / Main Menu (game over) | `GameManager.QuitToMenu` |
 | Settings (menu & pause) / Back | `SettingsPanel.Show` / `Hide` |
 | `onGameStarted` | MainMenuPanel.Hide, SettingsPanel.Hide, PauseButton.Show, ScoreManager.StartTracking |
 | `onGamePaused` | PausePanel.Show, PauseButton.Hide |
@@ -106,7 +108,7 @@ Tag **Gem**, **CircleCollider2D** (Is Trigger), **Collectible** script. Art goes
 
 ScoreManager's TMP_Text fields and SettingsPanel's toggle, slider, and label are also assigned automatically.
 
-> RestartGame and QuitToMenu both reload the scene, which always opens on the main menu.
+> Both reload the scene. RestartGame sets a flag so the reloaded scene starts a run immediately; QuitToMenu stops on the main menu.
 
 ---
 
@@ -129,22 +131,30 @@ These are the code defaults; values saved in the scene or prefabs override them.
 
 ---
 
+## Automated tests
+
+33 PlayMode tests in `Assets/Tests/PlayMode/` run against the real scene: the menu → run → game over → Try Again / Main Menu loop, level generation (every gap reachable, difficulty ramps, platforms recycled), player bounce / wrap / death, camera follow and auto-scroll, scoring and gems, moving platforms, pooling, settings, the Android back button, auto-pause when the app is backgrounded, and the neon menu style. Tests restore your saved high score, gems and settings afterwards. A full run takes about 45 seconds. Run them from **Window → General → Test Runner → PlayMode → Run All**, or headless (close the editor first):
+
+```
+Unity.exe -batchmode -projectPath "<project folder>" -runTests -testPlatform PlayMode -testResults results.xml
+```
+
 ## Editor test checklist
 
-- [ ] Press Play — main menu shows Best and Total Gems; gameplay is frozen
+- [ ] Press Play — main menu shows Best and Total Gems over the purple gradient background; gameplay is frozen
 - [ ] **Play** hides the menu, shows the HUD pause button, and the player starts bouncing on the first platform
 - [ ] A/D (or Left/Right arrows) steers; player wraps from one screen edge to the other
 - [ ] Player passes up through platforms and only bounces when landing on top
 - [ ] Camera scrolls up as player climbs and never scrolls down
 - [ ] Above height ~30 the camera keeps creeping up on its own and speeds up over time
 - [ ] Moving platforms oscillate left/right
-- [ ] Breakable platforms disappear shortly after landing
+- [ ] Breakable platforms shake on landing, then fade and drop away (player falls through once it gives way)
 - [ ] Gems spawn, add 50 points and a gem on pickup, and show a sparkle
 - [ ] Score and gem count update in the HUD
 - [ ] Pause → Resume / Restart / Menu / Settings all work
 - [ ] Settings: sound toggle mutes audio; sensitivity slider changes steering speed; both persist after restarting Play mode
 - [ ] Falling below the camera bottom triggers game over (not within the first 2 s)
-- [ ] Game-over panel shows Score, Best, Gems, Total Gems; **Try Again** returns to the main menu
+- [ ] Game-over panel shows Score, Best, Gems, Total Gems; **Try Again** starts a new run straight away; **Main Menu** returns to the main menu
 - [ ] High score and total gems persist between sessions
 
 ## On-device checks (Android)
