@@ -51,8 +51,9 @@ Scene
 │   ├── MovingPool       ObjectPool → MovingPlatform prefab
 │   ├── BreakablePool    ObjectPool → BreakablePlatform prefab
 │   └── GemPool          ObjectPool → Gem prefab
-├── Background           Background prefab (ParallaxLayer, factor ~0.05, sorting −20)
-├── NeonSigns            NeonSigns prefab (ParallaxLayer, factor ~0.4, sorting −10)
+├── Background           Background prefab — gradient (ParallaxLayer, factor 0.05, sorting −20)
+├── MidLayer             MidLayer prefab — neon clouds (ParallaxLayer, factor 0.35, sorting −15; added by hand, not by the builder)
+├── NeonSigns            NeonSigns prefab (ParallaxLayer, factor 0.5, sorting −10)
 ├── UI Canvas            Screen Space Overlay, scale with screen size 1080×1920, match 0.5
 │   ├── HUD              SafeArea — ScoreText, BestText, HudGemsText, PauseButton
 │   ├── GameOverPanel    Score / Best / Gems / Total Gems texts, "Try Again", "Main Menu" (starts hidden)
