@@ -180,7 +180,7 @@ public class GameplayTests : HoppyHeelsTestBase
             yield return new WaitForFixedUpdate();
 
         Assert.IsFalse(gem.activeSelf, "Gem should be collected and returned to its pool");
-        Assert.AreEqual(1, sm.GemsCollected);
+        Assert.GreaterOrEqual(sm.GemsCollected, 1);   // the bouncing player may also grab a randomly spawned gem
         Assert.GreaterOrEqual(sm.CurrentScore, scoreBefore + value, "Gem should add its point value");
     }
 
@@ -230,6 +230,7 @@ public class GameplayTests : HoppyHeelsTestBase
     public IEnumerator MovingPlatform_OscillatesWithinRange()
     {
         GM.StartGame();
+        FreezePlayer();   // keep the player alive for the whole test so the game stays in Playing
         var pool = Pool("MovingPool");
         var origin = new Vector3(0f, 80f, 0f);   // far above the player
         var mp = pool.Get(origin).GetComponent<MovingPlatform>();

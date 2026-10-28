@@ -32,7 +32,7 @@ The builder:
 - Loads prefabs from `Assets/Prefabs/` (Player, StaticPlatform, MovingPlatform, BreakablePlatform, Gem, Background, NeonSigns). If a prefab is missing, it creates a placeholder-art version. **Existing prefabs are never overwritten**, so custom art and collider tweaks survive rebuilds.
 - Creates every scene object below and wires all serialized references and button/UnityEvent listeners.
 
-> To update an **existing** scene with newer changes (back-button handler, neon menu style) without rebuilding it, use **Hoppy Heels > Update Existing Scene**. It's safe to run repeatedly.
+> To update an **existing** scene with newer changes (back-button handler, control modes, neon menu style) without rebuilding it, use **Hoppy Heels > Update Existing Scene**. It's safe to run repeatedly.
 
 > The builder **does not clear the scene** first; it only reuses an existing Main Camera. Running it on an already-built scene creates duplicate managers, spawners, and UI. Delete the old objects (or use a fresh scene) before rebuilding.
 
@@ -55,11 +55,11 @@ Scene
 ├── MidLayer             MidLayer prefab — neon clouds (ParallaxLayer, factor 0.35, sorting −15; added by hand, not by the builder)
 ├── NeonSigns            NeonSigns prefab (ParallaxLayer, factor 0.5, sorting −10)
 ├── UI Canvas            Screen Space Overlay, scale with screen size 1080×1920, match 0.5
-│   ├── HUD              SafeArea — ScoreText, BestText, HudGemsText, PauseButton
+│   ├── HUD              SafeArea — ScoreText, BestText, HudGemsText, PauseButton, MoveLeftButton / MoveRightButton (‹ ›, bottom corners, only shown in Buttons mode during a run)
 │   ├── GameOverPanel    Score / Best / Gems / Total Gems texts, "Try Again", "Main Menu" (starts hidden)
 │   ├── MainMenuPanel    Best, Total Gems, "Play", "Settings"; background = in-game gradient sprite (starts visible)
 │   ├── PausePanel       "Resume", "Restart", "Settings", "Menu" (starts hidden)
-│   └── SettingsPanel    Gradient background; Sound toggle, "Tilt Sensitivity" heading + slider + value, "Back" (starts hidden)
+│   └── SettingsPanel    Gradient background; Sound toggle, Controls: Tilt / Touch / Buttons, "Tilt Sensitivity" heading + slider + value (Tilt only), "Back" (starts hidden)
 └── EventSystem
 ```
 
@@ -118,7 +118,9 @@ ScoreManager's TMP_Text fields and SettingsPanel's toggle, slider, and label are
 | Component | Field | Default |
 |---|---|---|
 | PlayerController | jumpForce / boostJumpForce / maxSpeed | 16 / 23 / 9 |
+| SettingsManager | control mode (player-adjustable) | Tilt |
 | SettingsManager | tilt sensitivity (player-adjustable) | 22 (range 10–40) |
+| PlayerController | digitalRampTime (Touch / Buttons ease-in to max speed) | 0.1 s |
 | PlatformSpawner | minGapY / maxGapY / maxGapYHard | 1.0 / 1.8 / 2.6 |
 | PlatformSpawner | difficultyRampHeight | 100 |
 | PlatformSpawner | movingChance / breakableChance | 0.20 / 0.10 |
@@ -134,7 +136,7 @@ These are the code defaults; values saved in the scene or prefabs override them.
 
 ## Automated tests
 
-33 PlayMode tests in `Assets/Tests/PlayMode/` run against the real scene: the menu → run → game over → Try Again / Main Menu loop, level generation (every gap reachable, difficulty ramps, platforms recycled), player bounce / wrap / death, camera follow and auto-scroll, scoring and gems, moving platforms, pooling, settings, the Android back button, auto-pause when the app is backgrounded, and the neon menu style. Tests restore your saved high score, gems and settings afterwards. A full run takes about 45 seconds. Run them from **Window → General → Test Runner → PlayMode → Run All**, or headless (close the editor first):
+42 PlayMode tests in `Assets/Tests/PlayMode/` run against the real scene: the menu → run → game over → Try Again / Main Menu loop, level generation (every gap reachable, difficulty ramps, platforms recycled), player bounce / wrap / death, camera follow and auto-scroll, scoring and gems, moving platforms, pooling, settings, the three control modes, the Android back button, auto-pause when the app is backgrounded, and the neon menu style. Tests restore your saved high score, gems and settings afterwards. A full run takes about 45 seconds. Run them from **Window → General → Test Runner → PlayMode → Run All**, or headless (close the editor first):
 
 ```
 Unity.exe -batchmode -projectPath "<project folder>" -runTests -testPlatform PlayMode -testResults results.xml
@@ -154,11 +156,14 @@ Unity.exe -batchmode -projectPath "<project folder>" -runTests -testPlatform Pla
 - [ ] Score and gem count update in the HUD
 - [ ] Pause → Resume / Restart / Menu / Settings all work
 - [ ] Settings: sound toggle mutes audio; sensitivity slider changes steering speed; both persist after restarting Play mode
+- [ ] Controls: Tilt (default) shows the sensitivity slider; **Touch** — hold the mouse on the left/right half of the Game view to steer, clicking Pause doesn't steer; **Buttons** — hold the ‹ › corner buttons (only visible during a run). Keyboard works in every mode in the editor. The chosen mode persists
 - [ ] Falling below the camera bottom triggers game over (not within the first 2 s)
 - [ ] Game-over panel shows Score, Best, Gems, Total Gems; **Try Again** starts a new run straight away; **Main Menu** returns to the main menu
 - [ ] High score and total gems persist between sessions
 
 ## On-device checks (Android)
 - [ ] Tilt steering feels right at default sensitivity
+- [ ] Touch mode: holding either side of the screen steers; multi-touch (newest finger wins) feels right
+- [ ] Buttons mode: corner buttons are easy to reach with thumbs and don't hide too much of the play area
 - [ ] HUD stays clear of the notch/camera cutout (SafeArea)
 - [ ] Background fills the screen width without edge gaps

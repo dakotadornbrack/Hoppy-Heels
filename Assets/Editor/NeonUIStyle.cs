@@ -52,13 +52,19 @@ public static class NeonUIStyle
         img.sprite = sprite;
         img.type   = Image.Type.Sliced;
         img.pixelsPerUnitMultiplier = 0.3f;   // enlarges the built-in sprite's small corners into a rounded pill
-        img.color  = color;
+
+        // On-screen move buttons sit over the play area, so keep them see-through
+        bool overGameplay = button.GetComponent<HoldButton>() != null;
+        float alpha = overGameplay ? 0.4f : 1f;
+        img.color = new Color(color.r, color.g, color.b, alpha);
 
         // Lighter rim around the button for the neon-tube edge
         if (!button.TryGetComponent(out Outline rim))
             rim = Undo.AddComponent<Outline>(button.gameObject);
         Undo.RecordObject(rim, "Neon UI");
-        rim.effectColor    = Color.Lerp(color, Color.white, 0.55f);
+        var rimColor = Color.Lerp(color, Color.white, 0.55f);
+        rimColor.a = overGameplay ? 0.6f : 1f;
+        rim.effectColor    = rimColor;
         rim.effectDistance = new Vector2(4f, -4f);
 
         var label = button.GetComponentInChildren<TMP_Text>(true);

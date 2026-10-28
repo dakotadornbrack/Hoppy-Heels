@@ -10,12 +10,15 @@ public class PlayerController : MonoBehaviour
     [Header("Horizontal Movement")]
     [SerializeField] float tiltMultiplier = 22f;
     [SerializeField] float maxSpeed = 9f;
+    [Tooltip("Touch / button controls: seconds to reach max speed, so quick taps still allow small nudges")]
+    [SerializeField] float digitalRampTime = 0.1f;
 
     [Header("Screen Wrap")]
     [SerializeField] bool enableWrap = true;
 
     Rigidbody2D rb;
     PlayerAnimator anim;
+    ControlInput controls;
     float halfScreenWidth;
     bool alive = true;
     int platformLayer;
@@ -26,6 +29,8 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<PlayerAnimator>();
+        controls = GetComponent<ControlInput>();
+        if (controls == null) controls = gameObject.AddComponent<ControlInput>();   // tilt/touch still work without the buttons wired
         rb.gravityScale = 2.5f;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
@@ -48,17 +53,21 @@ public class PlayerController : MonoBehaviour
 
     void MoveHorizontal()
     {
-        float tilt;
+        float vx;
 
-#if UNITY_EDITOR || UNITY_STANDALONE
-        // Keyboard fallback so the game is testable in the editor
-        tilt = Input.GetAxis("Horizontal");
-#else
-        tilt = Mathf.Clamp(Input.acceleration.x, -1f, 1f);
-#endif
+        if (controls.IsDigital)
+        {
+            // Touch sides / on-screen buttons: ramp quickly toward full speed in the held direction
+            float target = controls.Horizontal * maxSpeed;
+            float step = maxSpeed / Mathf.Max(digitalRampTime, 0.0001f) * Time.fixedDeltaTime;
+            vx = Mathf.MoveTowards(rb.linearVelocity.x, target, step);
+        }
+        else
+        {
+            float sens = SettingsManager.Instance != null ? SettingsManager.Instance.TiltSensitivity : tiltMultiplier;
+            vx = Mathf.Clamp(controls.Horizontal * sens, -maxSpeed, maxSpeed);
+        }
 
-        float sens = SettingsManager.Instance != null ? SettingsManager.Instance.TiltSensitivity : tiltMultiplier;
-        float vx = Mathf.Clamp(tilt * sens, -maxSpeed, maxSpeed);
         rb.linearVelocity = new Vector2(vx, rb.linearVelocity.y);
     }
 

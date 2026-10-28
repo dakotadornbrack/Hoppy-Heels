@@ -48,8 +48,11 @@ public static class SceneUpdater
         so.FindProperty("settingsPanel").objectReferenceValue = settings;
         so.ApplyModifiedProperties();
 
+        // Control modes (Tilt / Touch / Buttons) — before styling so new buttons get the neon look
+        ControlsSetup.Apply(canvas, GameObject.FindGameObjectWithTag("Player"));
+
         NeonUIStyle.Apply(canvas);
-        Debug.Log("[SceneUpdater] Back button handler + neon UI style applied.");
+        Debug.Log("[SceneUpdater] Back button handler, control modes + neon UI style applied.");
         return true;
     }
 }

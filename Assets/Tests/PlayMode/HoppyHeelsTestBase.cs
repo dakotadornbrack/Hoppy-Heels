@@ -16,7 +16,7 @@ public abstract class HoppyHeelsTestBase
 {
     protected const string SceneName = "SampleScene";
 
-    static readonly string[] IntKeys   = { "HoppyHeels_HighScore", "HoppyHeels_TotalGems", "HoppyHeels_SoundOn" };
+    static readonly string[] IntKeys   = { "HoppyHeels_HighScore", "HoppyHeels_TotalGems", "HoppyHeels_SoundOn", "HoppyHeels_ControlMode" };
     static readonly string[] FloatKeys = { "HoppyHeels_TiltSensitivity" };
 
     readonly Dictionary<string, int?>   savedInts   = new Dictionary<string, int?>();
@@ -40,6 +40,7 @@ public abstract class HoppyHeelsTestBase
             if (kv.Value.HasValue) PlayerPrefs.SetFloat(kv.Key, kv.Value.Value); else PlayerPrefs.DeleteKey(kv.Key);
         PlayerPrefs.Save();
         Time.timeScale = 1f;
+        ControlInput.PointerOverride = null;
     }
 
     void SnapshotPrefs()

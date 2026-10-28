@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Persists player settings (sound on/off, tilt sensitivity) via PlayerPrefs.
+/// Persists player settings (sound on/off, control mode, tilt sensitivity) via PlayerPrefs.
 /// Singleton — lives on the GameManager GameObject.
 /// </summary>
 public class SettingsManager : MonoBehaviour
@@ -10,6 +10,7 @@ public class SettingsManager : MonoBehaviour
 
     const string KeySoundOn = "HoppyHeels_SoundOn";
     const string KeyTiltSensitivity = "HoppyHeels_TiltSensitivity";
+    const string KeyControlMode = "HoppyHeels_ControlMode";
 
     /// <summary>Default tilt multiplier matching PlayerController's default.</summary>
     const float DefaultSensitivity = 22f;
@@ -18,6 +19,7 @@ public class SettingsManager : MonoBehaviour
 
     public bool SoundOn { get; private set; } = true;
     public float TiltSensitivity { get; private set; } = DefaultSensitivity;
+    public ControlMode Controls { get; private set; } = ControlMode.Tilt;
 
     public static float MinSens => MinSensitivity;
     public static float MaxSens => MaxSensitivity;
@@ -43,6 +45,12 @@ public class SettingsManager : MonoBehaviour
         Save();
     }
 
+    public void SetControlMode(ControlMode mode)
+    {
+        Controls = mode;
+        Save();
+    }
+
     void ApplySound()
     {
         AudioListener.volume = SoundOn ? 1f : 0f;
@@ -52,6 +60,7 @@ public class SettingsManager : MonoBehaviour
     {
         PlayerPrefs.SetInt(KeySoundOn, SoundOn ? 1 : 0);
         PlayerPrefs.SetFloat(KeyTiltSensitivity, TiltSensitivity);
+        PlayerPrefs.SetInt(KeyControlMode, (int)Controls);
         PlayerPrefs.Save();
     }
 
@@ -59,5 +68,8 @@ public class SettingsManager : MonoBehaviour
     {
         SoundOn = PlayerPrefs.GetInt(KeySoundOn, 1) == 1;
         TiltSensitivity = PlayerPrefs.GetFloat(KeyTiltSensitivity, DefaultSensitivity);
+
+        int mode = PlayerPrefs.GetInt(KeyControlMode, (int)ControlMode.Tilt);
+        Controls = System.Enum.IsDefined(typeof(ControlMode), mode) ? (ControlMode)mode : ControlMode.Tilt;
     }
 }

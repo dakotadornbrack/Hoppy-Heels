@@ -48,6 +48,7 @@ public static class SceneBuilder
         var back = gameManagerGO.GetComponent<BackButtonHandler>();
         SetRef(back, "settingsPanel", ui.settingsGO.GetComponent<SettingsPanel>());
 
+        ControlsSetup.Apply(ui.settingsGO.transform.parent.gameObject, playerGO);
         NeonUIStyle.Apply(ui.settingsGO.transform.parent.gameObject);
         CreateEventSystem();
 
@@ -838,7 +839,7 @@ public static class SceneBuilder
     //  UI helpers
     // -----------------------------------------------------------------------
 
-    static TextMeshProUGUI TMPLabel(GameObject parent, string name, string text,
+    internal static TextMeshProUGUI TMPLabel(GameObject parent, string name, string text,
         float fontSize, Vector2 anchor, Vector2 pos, Vector2 size,
         Vector2? pivot = null)
     {
@@ -858,7 +859,7 @@ public static class SceneBuilder
         return tmp;
     }
 
-    static Button CreateButton(GameObject parent, string name, string label,
+    internal static Button CreateButton(GameObject parent, string name, string label,
         Vector2 pos, Vector2 size)
     {
         var go = ChildGO(parent, name);
@@ -923,7 +924,7 @@ public static class SceneBuilder
     }
 
     /// <summary>Set a serialized object-reference field by name.</summary>
-    static void SetRef(Component comp, string field, Object value)
+    internal static void SetRef(Component comp, string field, Object value)
     {
         var so   = new SerializedObject(comp);
         var prop = so.FindProperty(field);
