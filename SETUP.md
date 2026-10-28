@@ -136,7 +136,7 @@ These are the code defaults; values saved in the scene or prefabs override them.
 
 ## Automated tests
 
-42 PlayMode tests in `Assets/Tests/PlayMode/` run against the real scene: the menu → run → game over → Try Again / Main Menu loop, level generation (every gap reachable, difficulty ramps, platforms recycled), player bounce / wrap / death, camera follow and auto-scroll, scoring and gems, moving platforms, pooling, settings, the three control modes, the Android back button, auto-pause when the app is backgrounded, and the neon menu style. Tests restore your saved high score, gems and settings afterwards. A full run takes about 45 seconds. Run them from **Window → General → Test Runner → PlayMode → Run All**, or headless (close the editor first):
+41 PlayMode tests in `Assets/Tests/PlayMode/` run against the real scene: the menu → run → game over → Try Again / Main Menu loop, level generation (every gap reachable, difficulty ramps, platforms recycled), player bounce / wrap / death, camera follow and auto-scroll, scoring and gems, moving platforms, pooling, settings, the three control modes, the Android back button, auto-pause when the app is backgrounded, and the neon menu style. Tests restore your saved high score, gems and settings afterwards. A full run takes about 45 seconds. Run them from **Window → General → Test Runner → PlayMode → Run All**, or headless (close the editor first):
 
 ```
 Unity.exe -batchmode -projectPath "<project folder>" -runTests -testPlatform PlayMode -testResults results.xml
